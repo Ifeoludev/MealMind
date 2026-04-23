@@ -50,9 +50,9 @@ RUN npm ci --omit=dev
 # --from=builder tells Docker to grab files from Stage 1, not the current stage
 COPY --from=builder /app/dist ./dist
 
-# Pull the generated Prisma client from the builder stage
-# This contains the platform-specific binary for Linux (correct for the container)
-COPY --from=builder /app/src/generated ./src/generated
+# Pull the generated Prisma client from the builder stage into dist/generated
+# because dist/config/db.js resolves "../generated/prisma/client" → dist/generated/prisma/client
+COPY --from=builder /app/src/generated ./dist/generated
 
 # Copy Prisma schema and migrations — needed by prisma migrate deploy at startup
 COPY prisma.config.ts ./
