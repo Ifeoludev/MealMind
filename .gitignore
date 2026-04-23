@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Compiled output
+dist/
+
+# Generated Prisma client (platform-specific, regenerated on each deploy)
+src/generated/
+server/src/generated/
+
+# Environment variables — NEVER commit these
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+server.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Vite build output
+client/dist/
+
+# TypeScript build info
+*.tsbuildinfo

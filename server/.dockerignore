@@ -1,0 +1,21 @@
+# Dependencies — reinstalled fresh inside the container
+node_modules
+
+# Compiled output — rebuilt inside the container by tsc
+dist
+
+# Generated Prisma client — regenerated inside the container for Linux
+src/generated
+
+# Environment secrets — NEVER bake .env files into a Docker image
+# Env vars are injected at runtime by Railway/Render, not at build time
+.env
+.env.*
+
+# Git history — not needed inside the image
+.git
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
