@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PlanType {
+  daily
+  weekly
+  custom
+}
+
+enum MealSlotType {
+  breakfast
+  lunch
+  dinner
+}
+
+enum PlanStatus {
+  draft
+  active
+  archived
+}
+
+model User {
+  id          String           @id @default(uuid())
+  email       String           @unique
+  name        String
+  password    String?
+  google_id   String?          @unique
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+  preferences UserPreferences?
+  meal_plans  MealPlan[]
+}
+
+model UserPreferences {
+  id                   String   @id @default(uuid())
+  user_id              String   @unique
+  user                 User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  dietary_restrictions String[]
+  allergies            String[]
+  cuisine_preferences  String[]
+  disliked_ingredients String[]
+  servings_per_meal    Int      @default(2)
+  budget_per_week      Float?
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+}
+
+model MealPlan {
+  id                   String      @id @default(uuid())
+  user_id              String
+  user                 User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  plan_type            PlanType
+  status               PlanStatus  @default(draft)
+  start_date           DateTime
+  end_date             DateTime
+  budget               Float       @default(0)
+  total_estimated_cost Float?
+  user_prompt          String?
+  preferences_snapshot Json
+  version              Int         @default(1)
+  parent_id            String?
+  created_at           DateTime    @default(now())
+  meal_slots           MealSlot[]
+  grocery_list         GroceryList?
+}
+
+model MealSlot {
+  id           String       @id @default(uuid())
+  meal_plan_id String
+  meal_plan    MealPlan     @relation(fields: [meal_plan_id], references: [id], onDelete: Cascade)
+  date         DateTime
+  slot_type    MealSlotType
+  enabled      Boolean      @default(true)
+  recipe_id    String?
+  recipe       Recipe?      @relation(fields: [recipe_id], references: [id])
+  created_at   DateTime     @default(now())
+
+  @@unique([meal_plan_id, date, slot_type])
+}
+
+model Recipe {
+  id             String        @id @default(uuid())
+  name           String
+  description    String?
+  cuisine        String?
+  prep_time      Int?
+  cook_time      Int?
+  servings       Int
+  calories       Int?
+  estimated_cost Float?
+  ingredients    Json
+  instructions   Json
+  ai_raw         String?
+  prompt_hash    String?       @unique
+  created_at     DateTime      @default(now())
+  meal_slots     MealSlot[]
+  grocery_items  GroceryItem[]
+}
+
+model GroceryList {
+  id           String        @id @default(uuid())
+  meal_plan_id String        @unique
+  meal_plan    MealPlan      @relation(fields: [meal_plan_id], references: [id], onDelete: Cascade)
+  created_at   DateTime      @default(now())
+  items        GroceryItem[]
+}
+
+model GroceryItem {
+  id              String      @id @default(uuid())
+  grocery_list_id String
+  grocery_list    GroceryList @relation(fields: [grocery_list_id], references: [id], onDelete: Cascade)
+  recipe_id       String?
+  recipe          Recipe?     @relation(fields: [recipe_id], references: [id])
+  name            String
+  quantity        Float
+  unit            String
+  category        String?
+  checked         Boolean     @default(false)
+}
