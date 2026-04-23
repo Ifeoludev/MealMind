@@ -5,6 +5,7 @@ import axios from "axios";
 // is set to the Railway backend URL so requests go directly to the right server.
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "/api",
+  timeout: 90000, // 90s — AI generation can take 30s+, give it headroom
 });
 
 api.interceptors.request.use((config) => {

@@ -20,8 +20,7 @@ export const protect = (
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    // cast to any to attach user id — picked up by controllers downstream
-    (req as any).user = { id: decoded.id };
+    req.user = { id: decoded.id };
     next();
   } catch {
     res.status(401).json({ message: "Invalid or expired token" });
