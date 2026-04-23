@@ -33,7 +33,7 @@ export interface GroceryItem {
   quantity: number;
   unit: string;
   category: string;
-  checked: boolean;
+  checked?: boolean;
 }
 
 export interface MealPlan {

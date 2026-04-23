@@ -9,6 +9,15 @@ import { generalLimiter } from "./middleware/rateLimit.middleware";
 
 setDefaultResultOrder("ipv4first");
 
+// Fail fast at startup if any required env var is missing — better than a
+// cryptic runtime crash mid-request when a user is actually using the app
+const REQUIRED_ENV = ["JWT_SECRET", "DATABASE_URL", "REDIS_URL", "GEMINI_API_KEY", "GOOGLE_CLIENT_ID"];
+const missingEnv = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnv.join(", ")}`);
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env["PORT"] || 3000;
 

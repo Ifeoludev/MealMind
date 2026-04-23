@@ -1,17 +1,26 @@
 import rateLimit from "express-rate-limit";
 
-// Applied to all routes — blocks abuse of auth, preferences, and history endpoints
+// Applied to all routes — broad protection against general abuse
 export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 200,
-  standardHeaders: true,  // sends RateLimit-* headers so clients know their status
-  legacyHeaders: false,   // disables the old X-RateLimit-* headers
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { message: "Too many requests. Please try again in a few minutes." },
+});
+
+// Applied to /auth/login and /auth/register — prevents brute-force and account enumeration
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many attempts. Please wait 15 minutes before trying again." },
 });
 
 // Applied only to POST /meal-plans/generate — each call hits the Gemini API
 export const generateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
