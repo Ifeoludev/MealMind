@@ -109,23 +109,16 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Verify the token signature without audience check first
+    const expectedClientId = GOOGLE_CLIENT_ID.trim();
+
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
+      audience: expectedClientId,
     });
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email || !payload.sub) {
       res.status(400).json({ message: "Invalid Google token" });
-      return;
-    }
-
-    // Manual audience check with clear error so we can debug mismatches
-    if (payload.aud !== GOOGLE_CLIENT_ID) {
-      console.error(`Audience mismatch — token aud: ${payload.aud} | env GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}`);
-      res.status(401).json({
-        message: `Audience mismatch. Token: ${payload.aud} | Server expects: ${GOOGLE_CLIENT_ID}`,
-      });
       return;
     }
 
@@ -155,8 +148,7 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
       user: { id: user.id, name: user.name, email: user.email },
     });
   } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    console.error("Google auth error:", detail);
-    res.status(401).json({ message: `Google authentication failed: ${detail}` });
+    console.error("Google auth error:", error instanceof Error ? error.message : error);
+    res.status(401).json({ message: "Google authentication failed. Please try again." });
   }
 };
