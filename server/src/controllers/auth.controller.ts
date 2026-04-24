@@ -109,15 +109,23 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Verify the ID token is genuinely signed by Google
+    // Verify the token signature without audience check first
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
-      audience: GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email || !payload.sub) {
       res.status(400).json({ message: "Invalid Google token" });
+      return;
+    }
+
+    // Manual audience check with clear error so we can debug mismatches
+    if (payload.aud !== GOOGLE_CLIENT_ID) {
+      console.error(`Audience mismatch — token aud: ${payload.aud} | env GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}`);
+      res.status(401).json({
+        message: `Audience mismatch. Token: ${payload.aud} | Server expects: ${GOOGLE_CLIENT_ID}`,
+      });
       return;
     }
 
