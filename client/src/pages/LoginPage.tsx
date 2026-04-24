@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
@@ -13,6 +13,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Measure the container so the Google button width matches it exactly
+  const googleContainerRef = useRef<HTMLDivElement>(null);
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(360);
+
+  useEffect(() => {
+    if (googleContainerRef.current) {
+      setGoogleButtonWidth(googleContainerRef.current.offsetWidth);
+    }
+  }, []);
 
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
@@ -57,17 +67,17 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 px-8 py-10">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 px-5 sm:px-8 py-10">
           <h2 className="text-xl font-semibold text-black mb-6">Sign in to your account</h2>
 
-          {/* Google button */}
-          <div className="flex justify-center mb-5">
+          {/* Google button — width matches container exactly */}
+          <div ref={googleContainerRef} className="w-full mb-5">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError("Google sign-in failed. Please try again.")}
               theme="outline"
               size="large"
-              width="360"
+              width={String(googleButtonWidth)}
               text="signin_with"
             />
           </div>
