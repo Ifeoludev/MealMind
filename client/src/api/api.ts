@@ -1,11 +1,15 @@
 import axios from "axios";
 
-// In dev, VITE_API_URL is unset so baseURL falls back to "/api" — Vite's proxy
-// handles the redirect to localhost:3001. In production (Vercel), VITE_API_URL
-// is set to the Railway backend URL so requests go directly to the right server.
+// VITE_API_URL should be the bare origin e.g. https://mealmind-production-b7ed.up.railway.app
+// We append /api here so all relative paths (/auth/login etc.) resolve correctly.
+// In dev, VITE_API_URL is unset so baseURL falls back to /api — Vite's proxy handles the rest.
+const baseURL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : "/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "/api",
-  timeout: 90000, // 90s — AI generation can take 30s+, give it headroom
+  baseURL,
+  timeout: 90000,
 });
 
 api.interceptors.request.use((config) => {
