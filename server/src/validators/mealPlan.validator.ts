@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const generateMealPlanSchema = z.object({
   // Determines the range of the plan — a full week, a single day, or specific meal slots
-  scope: z.enum(["week", "day", "slot"]),
+  scope: z.enum(["week", "day"]),
 
   // Always treated as Day 1 of the plan regardless of scope
   date: z

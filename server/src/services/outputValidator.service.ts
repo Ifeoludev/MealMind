@@ -1,4 +1,4 @@
-// Parses and validates Claude's raw JSON response — retries up to 2x on failure
+// Parses and validates Gemini's raw JSON response — retries up to 2x on failure
 
 import { z } from "zod";
 import { callGemini } from "./mealPlanAI.service";
@@ -74,7 +74,7 @@ function parseAndValidate(raw: string): AIMealPlan {
   return result.data;
 }
 
-// Validates and retries the Claude call up to 3 attempts total
+// Validates and retries the Gemini call up to 3 attempts total
 export async function validateWithRetry(
   prompt: string,
   initialRaw: string,

@@ -40,9 +40,7 @@ export function buildMealPlanPrompt(input: GenerateMealPlanInput, preferences: U
   const scopeDescription =
     input.scope === "week"
       ? `a 7-day meal plan starting from ${input.date}`
-      : input.scope === "day"
-        ? `a single day meal plan for ${input.date}`
-        : `specific meal slots (${slots}) for ${input.date}`;
+      : `a single day meal plan for ${input.date}`;
 
   return `You are a professional meal planner and nutritionist. Generate ${scopeDescription}.
 

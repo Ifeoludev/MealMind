@@ -92,28 +92,13 @@ export async function saveMealPlanTransaction(
   });
 }
 
-const PLAN_INCLUDE = {
-  meal_slots: { include: { recipe: true } },
-  grocery_list: { include: { items: true } },
-} as const;
-
-export async function findMealPlansByUserId(
-  userId: string,
-  page: number,
-  limit: number,
-) {
-  const skip = (page - 1) * limit;
-
-  const [plans, total] = await prisma.$transaction([
-    prisma.mealPlan.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: "desc" },
-      skip,
-      take: limit,
-      include: PLAN_INCLUDE,
-    }),
-    prisma.mealPlan.count({ where: { user_id: userId } }),
-  ]);
-
-  return { plans, total };
+export async function findMealPlansByUserId(userId: string) {
+  return prisma.mealPlan.findMany({
+    where: { user_id: userId },
+    orderBy: { created_at: "desc" },
+    include: {
+      meal_slots: { include: { recipe: true } },
+      grocery_list: { include: { items: true } },
+    },
+  });
 }

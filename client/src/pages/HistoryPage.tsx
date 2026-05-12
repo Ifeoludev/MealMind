@@ -5,7 +5,7 @@ import DayCard from "../components/DayCard";
 import GroceryListPanel from "../components/GroceryListPanel";
 import RecipeModal from "../components/RecipeModal";
 import api from "../api/api";
-import type { MealPlan, PaginatedHistory, MealSlot, Recipe } from "../types/mealPlan";
+import type { MealPlan, MealSlot, Recipe } from "../types/mealPlan";
 
 interface DayGroup {
   date: string;
@@ -95,33 +95,17 @@ function PlanCard({
 
 export default function HistoryPage() {
   const [plans, setPlans] = useState<MealPlan[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
-  async function fetchPage(pageNum: number, append: boolean) {
-    append ? setLoadingMore(true) : setLoading(true);
-    setError("");
-    try {
-      const { data } = await api.get<PaginatedHistory>(
-        `/meal-plans?page=${pageNum}&limit=10`,
-      );
-      setPlans((prev) => (append ? [...prev, ...data.data] : data.data));
-      setTotalPages(data.pagination.totalPages);
-      setPage(pageNum);
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message: string }>;
-      setError(axiosErr.response?.data?.message ?? "Failed to load history.");
-    } finally {
-      append ? setLoadingMore(false) : setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    fetchPage(1, false);
+    api.get<{ data: MealPlan[] }>("/meal-plans")
+      .then(({ data }) => setPlans(data.data))
+      .catch((err: AxiosError<{ message: string }>) =>
+        setError(err.response?.data?.message ?? "Failed to load history.")
+      )
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -165,23 +149,6 @@ export default function HistoryPage() {
             {plans.map((plan) => (
               <PlanCard key={plan.id} plan={plan} onRecipeClick={setSelectedRecipe} />
             ))}
-
-            {page < totalPages && (
-              <button
-                onClick={() => fetchPage(page + 1, true)}
-                disabled={loadingMore}
-                className="w-full py-3 mt-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:border-green-400 hover:text-green-600 disabled:opacity-50 transition cursor-pointer"
-              >
-                {loadingMore ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-                    Loading more...
-                  </span>
-                ) : (
-                  "Load more"
-                )}
-              </button>
-            )}
           </div>
         )}
       </main>

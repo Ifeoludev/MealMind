@@ -51,12 +51,3 @@ export interface MealPlan {
   } | null;
 }
 
-export interface PaginatedHistory {
-  data: MealPlan[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
