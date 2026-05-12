@@ -7,7 +7,7 @@ import GroceryListPanel from "../components/GroceryListPanel";
 import RecipeModal from "../components/RecipeModal";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
-import type { MealPlan, PaginatedHistory, MealSlot, Recipe } from "../types/mealPlan";
+import type { MealPlan, MealSlot, Recipe } from "../types/mealPlan";
 
 interface DayGroup {
   date: string;
@@ -88,8 +88,8 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data } = await api.get<PaginatedHistory>("/meal-plans?page=1&limit=1");
-        setTotalPlans(data.pagination.total);
+        const { data } = await api.get<{ data: MealPlan[] }>("/meal-plans");
+        setTotalPlans(data.data.length);
         setLatestPlan(data.data[0] ?? null);
       } catch (err) {
         const axiosErr = err as AxiosError<{ message: string }>;
