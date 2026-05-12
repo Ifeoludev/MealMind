@@ -16,7 +16,7 @@ const SALT_ROUNDS = 10;
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 function signToken(userId: string): string {
-  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "24h" });
 }
 
 export const register = async (req: Request, res: Response): Promise<void> => {
