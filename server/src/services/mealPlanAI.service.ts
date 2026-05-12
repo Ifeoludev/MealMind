@@ -11,8 +11,11 @@ const model = genAI.getGenerativeModel({
 });
 
 export async function callGemini(prompt: string): Promise<string> {
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  const result = await model.generateContentStream(prompt);
+  let text = "";
+  for await (const chunk of result.stream) {
+    text += chunk.text();
+  }
   if (!text) throw new Error("Gemini returned an empty response");
   return text;
 }

@@ -115,7 +115,7 @@ export default function GeneratePage() {
         slots,
         budget: Number(budget),
         user_prompt: userPrompt.trim() || undefined,
-      });
+      }, { timeout: 180000 });
       setMealPlan(data.data);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
