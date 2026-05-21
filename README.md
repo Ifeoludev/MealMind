@@ -37,7 +37,7 @@ Gemini 2.5 Flash Lite has a generous free tier and is fast enough for structured
 
 **AI output goes through Zod schema validation with retry**
 
-Even with `responseMimeType: "application/json"`, Gemini guarantees valid JSON — not the right shape. The model can return arrays where numbers are expected, omit required fields on complex week-long plans, or produce an inconsistent grocery list structure. A Zod validator at the controller boundary catches structural mismatches and retries the Gemini call up to twice before surfacing an error to the client. This keeps malformed data out of the database entirely, regardless of what the model returns on any given call.
+Even with `responseMimeType: "application/json"`, Gemini guarantees valid JSON, not the right shape. The model can return arrays where numbers are expected, omit required fields on complex week-long plans, or produce an inconsistent grocery list structure. A Zod validator at the controller boundary catches structural mismatches and retries the Gemini call up to twice before surfacing an error to the client. This keeps malformed data out of the database entirely, regardless of what the model returns on any given call.
 
 **Prisma over raw SQL**
 
@@ -77,11 +77,11 @@ If a user who originally registered with email later signs in with Google using 
 
 **Prompt engineering for structured output is harder than it looks**
 
-Getting Gemini to stay within a Naira budget, avoid allergens across a 7-day plan, reuse ingredients across meals to reduce waste, and return a consistent JSON structure — all simultaneously, required significant iteration. The shift from high-level instructions to explicit, numbered rules was the turning point. Once the prompt treated the model like a strict specification rather than a suggestion, output quality became reliable enough to validate programmatically.
+Getting Gemini to stay within a Naira budget, avoid allergens across a 7-day plan, reuse ingredients across meals to reduce waste, and return a consistent JSON structure, all simultaneously, required significant iteration. The shift from high-level instructions to explicit, numbered rules was the turning point. Once the prompt treated the model like a strict specification rather than a suggestion, output quality became reliable enough to validate programmatically.
 
 **Validate AI output at the boundary**
 
-The first version of the validator was too lenient and trusted that the model would return the right shape if instructed to. When it did not, the error surfaced as a cryptic database write failure deep in the stack. Moving strict Zod validation to the controller boundary — before anything touches the database — made failures obvious, recoverable, and easy to debug.
+The first version of the validator was too lenient and trusted that the model would return the right shape if instructed to. When it did not, the error surfaced as a cryptic database write failure deep in the stack. Moving strict Zod validation to the controller boundary, before anything touches the database — made failures obvious, recoverable, and easy to debug.
 
 **Keep the architecture proportional to the problem**
 
