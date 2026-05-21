@@ -41,19 +41,19 @@ Even with `responseMimeType: "application/json"`, Gemini guarantees valid JSON �
 
 **Prisma over raw SQL**
 
-The schema has several nested relations — plans have slots, slots have recipes, recipes have ingredients stored as JSON, plans have a separate grocery list with line items. Writing and maintaining raw SQL for an atomic transaction that creates all of this would be brittle and difficult to iterate on. Prisma's typed query builder also keeps TypeScript types in sync with the schema without manual work, which removes a whole category of type mismatch bugs at the database boundary.
+The schema has several nested relations, plans have slots, slots have recipes, recipes have ingredients stored as JSON, plans have a separate grocery list with line items. Writing and maintaining raw SQL for an atomic transaction that creates all of this would be brittle and difficult to iterate on. Prisma's typed query builder also keeps TypeScript types in sync with the schema without manual work, which removes a whole category of type mismatch bugs at the database boundary.
 
 **JWT for authentication**
 
-The frontend is on Vercel and the backend is on Railway — two different origins. JWT issued on login and verified on protected routes is stateless, straightforward to implement cross-origin, and requires no server-side session store. Token expiry is set to 7 days, balancing session length against re-authentication friction for a personal-use app.
+The frontend is on Vercel and the backend is on Railway, two different origins. JWT issued on login and verified on protected routes is stateless, straightforward to implement cross-origin, and requires no server-side session store. Token expiry is set to 7 days, balancing session length against re-authentication friction for a personal-use app.
 
 **Structured relational schema over JSON blobs**
 
-Storing the AI output as a raw JSON blob per plan would have been faster to build, but would push all filtering and querying into application code. The relational model means recipes are linked to slots, grocery items are queryable per plan, and the full plan with all its relations can be returned in a single Prisma query with clean joins — no in-process reshaping required.
+Storing the AI output as a raw JSON blob per plan would have been faster to build, but would push all filtering and querying into application code. The relational model means recipes are linked to slots, grocery items are queryable per plan, and the full plan with all its relations can be returned in a single Prisma query with clean joins, no in-process reshaping required.
 
 **No server-side caching layer**
 
-A Redis cache for repeated generate requests was considered but not included. For a small, known user base, the same user would almost never submit the exact same combination of date, scope, slots, budget, and prompt more than once. Redis would have added a separate infrastructure dependency — another service to deploy, provision, and keep in sync — for a benefit that rarely materialises at this scale. Keeping the stack simple was the deliberate choice.
+A Redis cache for repeated generate requests was considered but not included. For a small, known user base, the same user would almost never submit the exact same combination of date, scope, slots, budget, and prompt more than once. Redis would have added a separate infrastructure dependency, another service to deploy, provision, and keep in sync, for a benefit that rarely materialises at this scale. Keeping the stack simple was the deliberate choice.
 
 ---
 
@@ -61,11 +61,11 @@ A Redis cache for repeated generate requests was considered but not included. Fo
 
 **Prompt construction is programmatic, not freeform**
 
-The AI never receives raw user input directly. The prompt is assembled server-side from the user's stored preferences — dietary restrictions, allergies, cuisine preferences, servings per meal — combined with per-request parameters like budget, date range, and meal slots. Rules are numbered and explicit: things like "never include an allergen even as a minor ingredient" and "combine duplicate grocery items and sum their quantities across all recipes." Vague high-level instructions produced inconsistent output during development; specific, enumerated rules did not.
+The AI never receives raw user input directly. The prompt is assembled server-side from the user's stored preferences, dietary restrictions, allergies, cuisine preferences, servings per meal, combined with per-request parameters like budget, date range, and meal slots. Rules are numbered and explicit: things like "never include an allergen even as a minor ingredient" and "combine duplicate grocery items and sum their quantities across all recipes." Vague high-level instructions produced inconsistent output during development; specific, enumerated rules did not.
 
 **Atomic database writes**
 
-The full plan — `MealPlan`, `MealSlots`, `Recipes`, `GroceryList`, and `GroceryItems` — is written inside a single Prisma transaction. If any insert fails, nothing is committed. This prevents partial plans and orphaned records from ever reaching the database.
+The full plan — `MealPlan`, `MealSlots`, `Recipes`, `GroceryList`, and `GroceryItems`, is written inside a single Prisma transaction. If any insert fails, nothing is committed. This prevents partial plans and orphaned records from ever reaching the database.
 
 **Google and email accounts are linked, not duplicated**
 
@@ -77,7 +77,7 @@ If a user who originally registered with email later signs in with Google using 
 
 **Prompt engineering for structured output is harder than it looks**
 
-Getting Gemini to stay within a Naira budget, avoid allergens across a 7-day plan, reuse ingredients across meals to reduce waste, and return a consistent JSON structure — all simultaneously — required significant iteration. The shift from high-level instructions to explicit, numbered rules was the turning point. Once the prompt treated the model like a strict specification rather than a suggestion, output quality became reliable enough to validate programmatically.
+Getting Gemini to stay within a Naira budget, avoid allergens across a 7-day plan, reuse ingredients across meals to reduce waste, and return a consistent JSON structure — all simultaneously, required significant iteration. The shift from high-level instructions to explicit, numbered rules was the turning point. Once the prompt treated the model like a strict specification rather than a suggestion, output quality became reliable enough to validate programmatically.
 
 **Validate AI output at the boundary**
 
