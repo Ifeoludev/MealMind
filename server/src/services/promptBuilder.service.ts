@@ -1,4 +1,4 @@
-// Builds the prompt sent to Claude Haiku based on user input and preferences
+// Builds the prompt sent to Gemini based on user input and preferences
 
 import { GenerateMealPlanInput } from "../validators/mealPlan.validator";
 import { UserPreferences } from "../generated/prisma/client";
@@ -20,19 +20,33 @@ function buildDateRange(input: GenerateMealPlanInput): string[] {
 
 // Formats preferences into readable lines — fallback if user has no preferences set
 function formatPreferences(prefs: UserPreferences | null): string {
-  if (!prefs) return "No preferences set — generate a balanced, general-purpose meal plan.";
+  if (!prefs)
+    return "No preferences set — generate a balanced, general-purpose meal plan.";
 
   const lines: string[] = [];
-  if (prefs.dietary_restrictions.length > 0) lines.push(`Dietary restrictions: ${prefs.dietary_restrictions.join(", ")}`);
-  if (prefs.allergies.length > 0) lines.push(`Allergies (must avoid completely): ${prefs.allergies.join(", ")}`);
-  if (prefs.cuisine_preferences.length > 0) lines.push(`Preferred cuisines: ${prefs.cuisine_preferences.join(", ")}`);
-  if (prefs.disliked_ingredients.length > 0) lines.push(`Disliked ingredients (avoid if possible): ${prefs.disliked_ingredients.join(", ")}`);
+  if (prefs.dietary_restrictions.length > 0)
+    lines.push(
+      `Dietary restrictions: ${prefs.dietary_restrictions.join(", ")}`,
+    );
+  if (prefs.allergies.length > 0)
+    lines.push(
+      `Allergies (must avoid completely): ${prefs.allergies.join(", ")}`,
+    );
+  if (prefs.cuisine_preferences.length > 0)
+    lines.push(`Preferred cuisines: ${prefs.cuisine_preferences.join(", ")}`);
+  if (prefs.disliked_ingredients.length > 0)
+    lines.push(
+      `Disliked ingredients (avoid if possible): ${prefs.disliked_ingredients.join(", ")}`,
+    );
   lines.push(`Servings per meal: ${prefs.servings_per_meal}`);
 
   return lines.join("\n");
 }
 
-export function buildMealPlanPrompt(input: GenerateMealPlanInput, preferences: UserPreferences | null): string {
+export function buildMealPlanPrompt(
+  input: GenerateMealPlanInput,
+  preferences: UserPreferences | null,
+): string {
   const dates = buildDateRange(input);
   const slots = input.slots.join(", ");
   const preferencesBlock = formatPreferences(preferences);
