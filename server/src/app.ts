@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { setDefaultResultOrder } from "dns";
 import authRoutes from "./routes/auth.routes";
 import preferencesRoutes from "./routes/preferences.routes";
@@ -26,7 +27,7 @@ const allowedOrigins = [
 ].filter(Boolean) as string[];
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
