@@ -21,6 +21,10 @@ if (missingEnv.length > 0) {
 const app = express();
 const PORT = process.env["PORT"] || 3000;
 
+// Render (and most PaaS) put the app behind a reverse proxy — without this,
+// express-rate-limit can't trust X-Forwarded-For to identify clients correctly
+app.set("trust proxy", 1);
+
 const allowedOrigins = [
   "http://localhost:5173",
   process.env["FRONTEND_URL"],
